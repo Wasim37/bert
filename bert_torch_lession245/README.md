@@ -11,12 +11,15 @@
 当前目录新建chinese_wwm_pytorch和data文件夹，存放预训练模型文件和数据集。
 
 - 分类数据集：中文情感分析数据集 ChnSentiCorp
+
 下载链接：https://bj.bcebos.com/paddlehub-dataset/chnsenticorp.tar.gz
 
 - 匹配数据集：哈工大语义相似度数据集 LCQMC
+
 下载链接：https://bj.bcebos.com/paddlehub-dataset/lcqmc.tar.gz
 
 - 序列标注数据集：中文微博命名实体识别数据集 weiboNer
+
 下载链接：https://github.com/quincyliang/nlp-public-dataset/tree/master/ner-data/weibo
 
 
