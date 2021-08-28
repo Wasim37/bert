@@ -1,3 +1,4 @@
+## 代码结构
 代码分为 6 个部分：main.py，model.py，prepro.py，parser_args.py，src 文件夹以及 shell 脚本文件。
 
 - main.py：主函数入口文件，包括模型的训练和验证流程，模型加载、模型保存、模型输出，控制日志输出等。
@@ -9,16 +10,16 @@
 - ner_prep.py：NER 任务的数据预处理脚本。
 
 
+## 模型训练与评估
 
-
-模型的训练：
+训练：
 ```
 task_output_name是本次训练任务的输出路径
 sh train.sh <task_output_name>
 ```
 
 
-模型的评估：
+评估：
 ```
 task_output_name是本次训练任务的输出路径
 sh eval.sh <task_output_name>
