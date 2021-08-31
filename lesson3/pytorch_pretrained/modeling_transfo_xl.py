@@ -125,6 +125,7 @@ def build_tf_to_pytorch_map(model, config):
         'transformer/r_w_bias': r_w_list})
     return tf_to_pt_map
 
+
 def load_tf_weights_in_transfo_xl(model, config, tf_path):
     """ Load tf checkpoints in a pytorch model
     """
@@ -335,9 +336,9 @@ class PositionalEmbedding(nn.Module):
         pos_emb = torch.cat([sinusoid_inp.sin(), sinusoid_inp.cos()], dim=-1)
 
         if bsz is not None:
-            return pos_emb[:,None,:].expand(-1, bsz, -1)
+            return pos_emb[:, None, :].expand(-1, bsz, -1)
         else:
-            return pos_emb[:,None,:]
+            return pos_emb[:, None, :]
 
 
 class PositionwiseFF(nn.Module):
@@ -375,8 +376,9 @@ class PositionwiseFF(nn.Module):
 
         return output
 
+
 class MultiHeadAttn(nn.Module):
-    def __init__(self, n_head, d_model, d_head, dropout, dropatt=0, 
+    def __init__(self, n_head, d_model, d_head, dropout, dropatt=0,
                  pre_lnorm=False, r_r_bias=None, r_w_bias=None):
         super(MultiHeadAttn, self).__init__()
 
@@ -534,6 +536,7 @@ class RelMultiHeadAttn(nn.Module):
     def forward(self, w, r, attn_mask=None, mems=None):
         raise NotImplementedError
 
+
 class RelPartialLearnableMultiHeadAttn(RelMultiHeadAttn):
     def __init__(self, *args, **kwargs):
         super(RelPartialLearnableMultiHeadAttn, self).__init__(*args, **kwargs)
@@ -614,6 +617,7 @@ class RelPartialLearnableMultiHeadAttn(RelMultiHeadAttn):
             output = self.layer_norm(w + attn_out)
 
         return output
+
 
 class RelLearnableMultiHeadAttn(RelMultiHeadAttn):
     def __init__(self, *args, **kwargs):
@@ -705,7 +709,7 @@ class DecoderLayer(nn.Module):
         super(DecoderLayer, self).__init__()
 
         self.dec_attn = MultiHeadAttn(n_head, d_model, d_head, dropout, **kwargs)
-        self.pos_ff = PositionwiseFF(d_model, d_inner, dropout, 
+        self.pos_ff = PositionwiseFF(d_model, d_inner, dropout,
                                      pre_lnorm=kwargs.get('pre_lnorm'))
 
     def forward(self, dec_inp, dec_attn_mask=None, mems=None):
@@ -723,7 +727,7 @@ class RelLearnableDecoderLayer(nn.Module):
 
         self.dec_attn = RelLearnableMultiHeadAttn(n_head, d_model, d_head, dropout,
                                          **kwargs)
-        self.pos_ff = PositionwiseFF(d_model, d_inner, dropout, 
+        self.pos_ff = PositionwiseFF(d_model, d_inner, dropout,
                                      pre_lnorm=kwargs.get('pre_lnorm'))
 
     def forward(self, dec_inp, r_emb, r_w_bias, r_bias, dec_attn_mask=None, mems=None):
@@ -742,7 +746,7 @@ class RelPartialLearnableDecoderLayer(nn.Module):
 
         self.dec_attn = RelPartialLearnableMultiHeadAttn(n_head, d_model,
                             d_head, dropout, **kwargs)
-        self.pos_ff = PositionwiseFF(d_model, d_inner, dropout, 
+        self.pos_ff = PositionwiseFF(d_model, d_inner, dropout,
                                      pre_lnorm=kwargs.get('pre_lnorm'))
 
     def forward(self, dec_inp, r, dec_attn_mask=None, mems=None):
@@ -756,7 +760,7 @@ class RelPartialLearnableDecoderLayer(nn.Module):
 
 
 class AdaptiveEmbedding(nn.Module):
-    def __init__(self, n_token, d_embed, d_proj, cutoffs, div_val=1, 
+    def __init__(self, n_token, d_embed, d_proj, cutoffs, div_val=1,
                  sample_softmax=False):
         super(AdaptiveEmbedding, self).__init__()
 
@@ -794,7 +798,7 @@ class AdaptiveEmbedding(nn.Module):
         else:
             param = next(self.parameters())
             inp_flat = inp.view(-1)
-            emb_flat = torch.zeros([inp_flat.size(0), self.d_proj], 
+            emb_flat = torch.zeros([inp_flat.size(0), self.d_proj],
                 dtype=param.dtype, device=param.device)
             for i in range(len(self.cutoffs)):
                 l_idx, r_idx = self.cutoff_ends[i], self.cutoff_ends[i + 1]
@@ -1035,7 +1039,7 @@ class TransfoXLModel(TransfoXLPreTrainedModel):
         self.n_head = config.n_head
         self.d_head = config.d_head
 
-        self.word_emb = AdaptiveEmbedding(config.n_token, config.d_embed, config.d_model, config.cutoffs, 
+        self.word_emb = AdaptiveEmbedding(config.n_token, config.d_embed, config.d_model, config.cutoffs,
                                           div_val=config.div_val)
 
         self.drop = nn.Dropout(config.dropout)
@@ -1104,7 +1108,6 @@ class TransfoXLModel(TransfoXLPreTrainedModel):
     def backward_compatible(self):
         self.sample_softmax = -1
 
-
     def reset_length(self, tgt_len, ext_len, mem_len):
         self.tgt_len = tgt_len
         self.mem_len = mem_len
@@ -1168,7 +1171,7 @@ class TransfoXLModel(TransfoXLPreTrainedModel):
 
         hids = []
         if self.attn_type == 0: # default
-            pos_seq = torch.arange(klen-1, -1, -1.0, device=word_emb.device, 
+            pos_seq = torch.arange(klen-1, -1, -1.0, device=word_emb.device,
                                    dtype=word_emb.dtype)
             if self.clamp_len > 0:
                 pos_seq.clamp_(max=self.clamp_len)
@@ -1323,7 +1326,7 @@ class TransfoXLLMHeadModel(TransfoXLPreTrainedModel):
             self.sampler = LogUniformSampler(config.n_token, config.sample_softmax)
         # use adaptive softmax (including standard softmax)
         else:
-            self.crit = ProjectedAdaptiveLogSoftmax(config.n_token, config.d_embed, config.d_model, 
+            self.crit = ProjectedAdaptiveLogSoftmax(config.n_token, config.d_embed, config.d_model,
                                                     config.cutoffs, div_val=config.div_val)
         self.apply(self.init_weights)
         self.tie_weights()
