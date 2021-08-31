@@ -1,3 +1,11 @@
+<!--
+ * @Author: your name
+ * @Date: 2021-08-28 10:27:02
+ * @LastEditTime: 2021-08-31 10:28:25
+ * @LastEditors: your name
+ * @Description: In User Settings Edit
+ * @FilePath: \wasim_bert\bert_torch_lession245\README.md
+-->
 ### 代码结构
 代码分为以下几个部分
 - run.py： 模型入口，供大家一键运行。
@@ -12,15 +20,15 @@
 
 - 分类数据集：中文情感分析数据集 ChnSentiCorp
 
-下载链接：https://bj.bcebos.com/paddlehub-dataset/chnsenticorp.tar.gz
+  下载链接：https://bj.bcebos.com/paddlehub-dataset/chnsenticorp.tar.gz
 
 - 匹配数据集：哈工大语义相似度数据集 LCQMC
 
-下载链接：https://bj.bcebos.com/paddlehub-dataset/lcqmc.tar.gz
+  下载链接：https://bj.bcebos.com/paddlehub-dataset/lcqmc.tar.gz
 
 - 序列标注数据集：中文微博命名实体识别数据集 weiboNer
 
-下载链接：https://github.com/quincyliang/nlp-public-dataset/tree/master/ner-data/weibo
+  下载链接：https://github.com/quincyliang/nlp-public-dataset/tree/master/ner-data/weibo
 
 
 ### 训练与测试

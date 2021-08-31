@@ -8,6 +8,7 @@ from torch.nn import CrossEntropyLoss
 from src.transformers.file_utils import add_start_docstrings, add_start_docstrings_to_callable
 from src.transformers.modeling_bert import BertPreTrainedModel, BertModel, BERT_START_DOCSTRING, BERT_INPUTS_DOCSTRING
 
+
 @add_start_docstrings(
     """Bert Model transformer with a sequence classification/regression head on top (a linear layer on top of
     the pooled output) e.g. for GLUE tasks. """,

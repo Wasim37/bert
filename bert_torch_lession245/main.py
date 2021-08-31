@@ -124,10 +124,10 @@ def train(args, train_dataset, model, tokenizer):
     logger.info("  Num Epochs = %d", args.num_train_epochs)
     # logger.info("  Instantaneous batch size per GPU = %d", args.per_gpu_train_batch_size)
     # logger.info(
-      #   "  Total train batch size (w. parallel, distributed & accumulation) = %d",
-      #  args.train_batch_size
-      #  * args.gradient_accumulation_steps
-      #  * (torch.distributed.get_world_size() if args.local_rank != -1 else 1),
+    #     "  Total train batch size (w. parallel, distributed & accumulation) = %d",
+    #    args.train_batch_size
+    #    * args.gradient_accumulation_steps
+    #    * (torch.distributed.get_world_size() if args.local_rank != -1 else 1),
     # )
     # logger.info("  Gradient Accumulation steps = %d", args.gradient_accumulation_steps)
     logger.info("  Total optimization steps = %d", t_total)
@@ -140,7 +140,7 @@ def train(args, train_dataset, model, tokenizer):
         for step, batch in enumerate(train_dataloader):
             model.train()
             batch = tuple(t.to(args.device) for t in batch)
-            inputs = {"input_ids": batch[0], "attention_mask": batch[1], "token_type_ids":batch[2], "labels": batch[3]}
+            inputs = {"input_ids": batch[0], "attention_mask": batch[1], "token_type_ids": batch[2], "labels": batch[3]}
             outputs = model(**inputs)
             loss = outputs[0]  # model outputs are always tuple in transformers (see doc)
 
@@ -232,7 +232,7 @@ def evaluate(args, model, tokenizer, prefix=""):
             batch = tuple(t.to(args.device) for t in batch)
 
             with torch.no_grad():
-                inputs = {"input_ids": batch[0], "attention_mask": batch[1], "token_type_ids":batch[2], "labels": batch[3]}
+                inputs = {"input_ids": batch[0], "attention_mask": batch[1], "token_type_ids": batch[2], "labels": batch[3]}
                 outputs = model(**inputs)
                 tmp_eval_loss, logits = outputs[:2]
 
@@ -255,7 +255,7 @@ def evaluate(args, model, tokenizer, prefix=""):
             # ner: logits=scores .shape=[examp_nums, seq_len, num_labels]
             preds = np.argmax(preds, axis=2)
             result = ner_F1(preds, out_label_ids, masks)
-            
+
         results.update(result)
 
         output_eval_file = os.path.join(eval_output_dir, prefix, "eval_results.txt")
@@ -270,17 +270,12 @@ def evaluate(args, model, tokenizer, prefix=""):
 
 def main():
 
-    if (
-        os.path.exists(args.output_dir)
-        and any([x for x in os.listdir(args.output_dir) if x.find("bin")>-1])
-        and args.do_train
-        and not args.overwrite_output_dir
-    ):
+    if (os.path.exists(args.output_dir) and any(
+        [x for x in os.listdir(args.output_dir) if x.find("bin") > -1])
+            and args.do_train and not args.overwrite_output_dir):
         raise ValueError(
-            "Output directory ({}) already exists and is not empty. Use --overwrite_output_dir to overcome.".format(
-                args.output_dir
-            )
-        )
+            "Output directory ({}) already exists and is not empty. Use --overwrite_output_dir to overcome."
+            .format(args.output_dir))
 
     # Setup CUDA, GPU & distributed training
     if args.local_rank == -1:
@@ -364,13 +359,12 @@ def main():
         # Good practice: save your training arguments together with the trained model
         torch.save(args, os.path.join(args.output_dir, "training_args.bin"))
 
-
     # Evaluation
     results = {}
     if args.do_eval and args.local_rank in [-1, 0]:
         # Load a trained model and vocabulary that you have fine-tuned (saved at last step)
         # model = model_class.from_pretrained(args.output_dir)
-        #tokenizer = tokenizer_class.from_pretrained(args.output_dir, do_lower_case=args.do_lower_case)
+        # tokenizer = tokenizer_class.from_pretrained(args.output_dir, do_lower_case=args.do_lower_case)
         # model.to(args.device)
         if args.eval_all_checkpoints:
             checkpoints = list(
@@ -394,4 +388,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()          
+    main()

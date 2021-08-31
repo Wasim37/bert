@@ -14,7 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 import logging
 import os
 from enum import Enum
@@ -33,6 +32,7 @@ if is_tf_available():
     import tensorflow as tf
 
 logger = logging.getLogger(__name__)
+
 
 @dataclass
 class InputExample:
@@ -91,7 +91,6 @@ class NERInputFeatures:
 
 
 class ChnSentiProcessor(DataProcessor):
-
     def get_train_examples(self, data_dir):
         """See base class."""
         lines = self._read_tsv(os.path.join(data_dir, "train.tsv"))
@@ -100,7 +99,8 @@ class ChnSentiProcessor(DataProcessor):
             guid = "%s-%s" % ("train", i)
             text_a = line[1]
             label = line[0]
-            examples.append(InputExample(guid=guid, text_a=text_a, label=label))
+            examples.append(InputExample(guid=guid, text_a=text_a,
+                                         label=label))
         return examples
 
     def get_test_examples(self, data_dir, file_name):
@@ -111,7 +111,8 @@ class ChnSentiProcessor(DataProcessor):
             guid = "%s-%s" % ("test", i)
             text_a = line[1]
             label = line[0]
-            examples.append(InputExample(guid=guid, text_a=text_a, label=label))
+            examples.append(InputExample(guid=guid, text_a=text_a,
+                                         label=label))
         return examples
 
     def get_labels(self, data_dir):
@@ -124,7 +125,6 @@ class ChnSentiProcessor(DataProcessor):
 
 
 class LCQMCProcessor(DataProcessor):
-
     def get_train_examples(self, data_dir):
         """See base class."""
         lines = self._read_tsv(os.path.join(data_dir, "train.tsv"))
@@ -134,7 +134,11 @@ class LCQMCProcessor(DataProcessor):
             text_a = line[0]
             text_b = line[1]
             label = line[2]
-            examples.append(InputExample(guid=guid, text_a=text_a, text_b=text_b, label=label))
+            examples.append(
+                InputExample(guid=guid,
+                             text_a=text_a,
+                             text_b=text_b,
+                             label=label))
         return examples
 
     def get_test_examples(self, data_dir, file_name):
@@ -146,7 +150,11 @@ class LCQMCProcessor(DataProcessor):
             text_a = line[0]
             text_b = line[1]
             label = line[2]
-            examples.append(InputExample(guid=guid, text_a=text_a, text_b=text_b, label=label))
+            examples.append(
+                InputExample(guid=guid,
+                             text_a=text_a,
+                             text_b=text_b,
+                             label=label))
         return examples
 
     def get_labels(self, data_dir):
@@ -158,9 +166,7 @@ class LCQMCProcessor(DataProcessor):
         return labels
 
 
-
 class WeiboNerProcessor(DataProcessor):
-
     def get_train_examples(self, data_dir):
         """See base class."""
         lines = self._read_tsv(os.path.join(data_dir, "train.tsv"))
@@ -169,7 +175,7 @@ class WeiboNerProcessor(DataProcessor):
             guid = "%s-%s" % ("train", i)
             text_a = line[0]
             label = line[1].split(" ")
-            examples.append(NERInputExample(guid=guid, text_a=text_a,  label=label))
+            examples.append(NERInputExample(guid=guid, text_a=text_a, label=label))
         return examples
 
     def get_test_examples(self, data_dir, file_name):
@@ -180,7 +186,8 @@ class WeiboNerProcessor(DataProcessor):
             guid = "%s-%s" % ("test", i)
             text_a = line[0]
             label = line[1].split(" ")
-            examples.append(NERInputExample(guid=guid, text_a=text_a, label=label))
+            examples.append(
+                NERInputExample(guid=guid, text_a=text_a, label=label))
         return examples
 
     def get_labels(self, data_dir):
@@ -196,8 +203,7 @@ processors = {
     "lcqmc": LCQMCProcessor,
     "chnsenti": ChnSentiProcessor,
     "weiboner": WeiboNerProcessor
-    }
-
+}
 
 output_modes = {
     "chnsenti": "classification",
@@ -206,7 +212,7 @@ output_modes = {
 }
 
 
-def _truncate_seq_pair(tokens_a, tokens_b, max_length):                                                                           
+def _truncate_seq_pair(tokens_a, tokens_b, max_length):
     """Truncates a sequence pair in place to the maximum length."""
     while True:
         total_length = len(tokens_a) + len(tokens_b)
@@ -216,24 +222,22 @@ def _truncate_seq_pair(tokens_a, tokens_b, max_length):
             tokens_a.pop()
         else:
             tokens_b.pop()
-            
 
-def convert_examples_to_features(
-        examples: Union[List[InputExample], "tf.data.Dataset"],
-        tokenizer: PreTrainedTokenizer,
-        max_length: Optional[int],
-        label_list: List[str],
-        output_mode: str
-    ):
 
+def convert_examples_to_features(examples: Union[List[InputExample],
+                                                 "tf.data.Dataset"],
+                                 tokenizer: PreTrainedTokenizer,
+                                 max_length: Optional[int],
+                                 label_list: List[str], output_mode: str):
     def convert_text_to_ids(text):
 
         tokens = tokenizer.tokenize(text, add_special_tokens=True)
-        tokens = ["[CLS]"]+tokens[:max_length-2]+["[SEP]"]
+        tokens = ["[CLS]"] + tokens[:max_length - 2] + ["[SEP]"]
         text_len = len(tokens)
-        input_ids = tokenizer.convert_tokens_to_ids(tokens+["[PAD]"]*(max_length-text_len))
-        attention_mask = [1]*text_len+[0]*(max_length-text_len)
-        token_type_ids = [0]*max_length
+        input_ids = tokenizer.convert_tokens_to_ids(tokens + ["[PAD]"] *
+                                                    (max_length - text_len))
+        attention_mask = [1] * text_len + [0] * (max_length - text_len)
+        token_type_ids = [0] * max_length
 
         assert len(input_ids) == max_length
         assert len(attention_mask) == max_length
@@ -242,49 +246,52 @@ def convert_examples_to_features(
         return tokens, input_ids, attention_mask, token_type_ids
 
     def convert_text_to_ids_for_matching(text_a, text_b):
-        tokens_a = tokenizer.tokenize(text_a)  
-        tokens_b = tokenizer.tokenize(text_b)  
-        if len(tokens_a) + len(tokens_b) > (max_length-3):
-            _truncate_seq_pair(tokens_a, tokens_b, max_length-3)
-        tokens =  ["[CLS]"] + tokens_a + ["[SEP]"] + tokens_b + ["[SEP]"]
+        tokens_a = tokenizer.tokenize(text_a)
+        tokens_b = tokenizer.tokenize(text_b)
+        if len(tokens_a) + len(tokens_b) > (max_length - 3):
+            _truncate_seq_pair(tokens_a, tokens_b, max_length - 3)
+        tokens = ["[CLS]"] + tokens_a + ["[SEP]"] + tokens_b + ["[SEP]"]
         text_len = len(tokens)
-        input_ids = tokenizer.convert_tokens_to_ids(tokens+["[PAD]"]*(max_length-text_len))
-        attention_mask = [1]*text_len+[0]*(max_length-text_len)
-        token_type_ids = [0]*(len(tokens_a) + 2) + [1]*(len(tokens_b)+1)+[0]*(max_length-text_len)
-        
+        input_ids = tokenizer.convert_tokens_to_ids(tokens + ["[PAD]"] *
+                                                    (max_length - text_len))
+        attention_mask = [1] * text_len + [0] * (max_length - text_len)
+        token_type_ids = [0] * (len(tokens_a) + 2) + [1] * (
+            len(tokens_b) + 1) + [0] * (max_length - text_len)
+
         assert len(input_ids) == max_length
         assert len(attention_mask) == max_length
         assert len(token_type_ids) == max_length
 
         return tokens, input_ids, attention_mask, token_type_ids
 
-
     label_map = {label: i for i, label in enumerate(label_list)}
     features = []
 
-    for i in range(len(examples)): 
+    for i in range(len(examples)):
 
         if examples[i].text_b:
-            tokens1, input_ids1, attention_mask1, token_type_ids1 = convert_text_to_ids_for_matching(examples[i].text_a, examples[i].text_b)
+            tokens1, input_ids1, attention_mask1, token_type_ids1 = convert_text_to_ids_for_matching(
+                examples[i].text_a, examples[i].text_b)
         else:
-            tokens1, input_ids1, attention_mask1, token_type_ids1 = convert_text_to_ids(examples[i].text_a)
-        
+            tokens1, input_ids1, attention_mask1, token_type_ids1 = convert_text_to_ids(
+                examples[i].text_a)
+
         if output_mode == "ner":
             label_id = [label_map["O"]]
-            for j in range(len(tokens1)-2):
+            for j in range(len(tokens1) - 2):
                 label_id.append(label_map[examples[i].label[j]])
             label_id.append(label_map["O"])
             if len(label_id) < max_length:
-                label_id = label_id +[label_map["O"]]*(max_length-len(label_id))
+                label_id = label_id + [label_map["O"]
+                                       ] * (max_length - len(label_id))
         else:
             label_id = label_map[examples[i].label]
 
-        feature = InputFeatures(
-            tokens1=tokens1,
-            input_ids1=input_ids1,
-            attention_mask1=attention_mask1,
-            token_type_ids1=token_type_ids1,
-            label_id=label_id)
+        feature = InputFeatures(tokens1=tokens1,
+                                input_ids1=input_ids1,
+                                attention_mask1=attention_mask1,
+                                token_type_ids1=token_type_ids1,
+                                label_id=label_id)
 
         features.append(feature)
 
@@ -302,33 +309,40 @@ def convert_examples_to_features(
 
 def load_and_cache_examples(args, task, tokenizer, evaluate=False):
     if args.local_rank != -1 and not evaluate:
-        torch.distributed.barrier()  # Make sure only the first process in distributed training process the dataset, and the others will use the cache
+        torch.distributed.barrier(
+        )  # Make sure only the first process in distributed training process the dataset, and the others will use the cache
 
     processor = processors[task]()
     output_mode = output_modes[task]
     logger.info("Creating features from dataset file at %s", args.data_dir)
     label_list = processor.get_labels(args.data_dir)
     if evaluate:
-        examples = (
-            processor.get_test_examples(args.data_dir, args.input_test_name)
-        )
+        examples = (processor.get_test_examples(args.data_dir,
+                                                args.input_test_name))
     else:
-        examples = (
-            processor.get_train_examples(args.data_dir)
-        )
+        examples = (processor.get_train_examples(args.data_dir))
     features = convert_examples_to_features(
-        examples, tokenizer, max_length=args.max_seq_length, label_list=label_list, output_mode=output_mode,
+        examples,
+        tokenizer,
+        max_length=args.max_seq_length,
+        label_list=label_list,
+        output_mode=output_mode,
     )
 
     # Convert to Tensors and build dataset
-    all_input_ids1 = torch.tensor([f.input_ids1 for f in features], dtype=torch.long)
-    all_attention_mask1 = torch.tensor([f.attention_mask1 for f in features], dtype=torch.long)
-    all_token_type_ids1 = torch.tensor([f.token_type_ids1 for f in features], dtype=torch.long)
+    all_input_ids1 = torch.tensor([f.input_ids1 for f in features],
+                                  dtype=torch.long)
+    all_attention_mask1 = torch.tensor([f.attention_mask1 for f in features],
+                                       dtype=torch.long)
+    all_token_type_ids1 = torch.tensor([f.token_type_ids1 for f in features],
+                                       dtype=torch.long)
     all_labels = torch.tensor([f.label_id for f in features], dtype=torch.long)
 
-    dataset = TensorDataset(all_input_ids1, all_attention_mask1, all_token_type_ids1,  all_labels)
+    dataset = TensorDataset(all_input_ids1, all_attention_mask1,
+                            all_token_type_ids1, all_labels)
 
     return dataset, examples
+
 
 try:
     from scipy.stats import pearsonr, spearmanr
@@ -357,8 +371,8 @@ def ner_F1(preds, labels, mask_indicators):
     total_ground = []
     for i in range(len(preds)):
         num = sum(mask_indicators[i]) - 2
-        total_preds.extend(preds[i][1: 1+num])
-        total_ground.extend(labels[i][1: 1+num])
+        total_preds.extend(preds[i][1:1 + num])
+        total_ground.extend(labels[i][1:1 + num])
 
     refer_label = total_ground
     pred_label = total_preds
@@ -383,12 +397,12 @@ def ner_F1(preds, labels, mask_indicators):
     p_total = float(tp_total) / (tp_total + fp_total)
     r_total = float(tp_total) / (tp_total + fn_total)
     f_micro = 2 * p_total * r_total / (p_total + r_total)
-    
+
     return {"f1_score": f_micro}
-        
 
 
 if _has_sklearn:
+
     def simple_accuracy(preds, labels):
         return (preds == labels).mean()
 
@@ -409,4 +423,3 @@ if _has_sklearn:
             "spearmanr": spearman_corr,
             "corr": (pearson_corr + spearman_corr) / 2,
         }
-
