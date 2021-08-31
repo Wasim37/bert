@@ -34,6 +34,7 @@ if is_tf_available():
 logger = logging.getLogger(__name__)
 
 
+# Python3.7 dataclass使用指南 https://www.cnblogs.com/apocelipes/p/10284346.html
 @dataclass
 class InputExample:
 
@@ -90,6 +91,7 @@ class NERInputFeatures:
         return json.dumps(dataclasses.asdict(self)) + "\n"
 
 
+# 中文情感分类数据集Processor
 class ChnSentiProcessor(DataProcessor):
     def get_train_examples(self, data_dir):
         """See base class."""
@@ -124,6 +126,7 @@ class ChnSentiProcessor(DataProcessor):
         return labels
 
 
+# 哈工大语义相似度数据集Processor
 class LCQMCProcessor(DataProcessor):
     def get_train_examples(self, data_dir):
         """See base class."""
@@ -166,6 +169,7 @@ class LCQMCProcessor(DataProcessor):
         return labels
 
 
+# 中文微博命名实体识别数据集Processor
 class WeiboNerProcessor(DataProcessor):
     def get_train_examples(self, data_dir):
         """See base class."""

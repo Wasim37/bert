@@ -1,9 +1,9 @@
 '''
 Author: your name
 Date: 2021-08-28 10:27:02
-LastEditTime: 2021-08-31 13:56:42
+LastEditTime: 2021-08-31 14:37:48
 LastEditors: Please set LastEditors
-Description: In User Settings Edit
+Description: 微博NER数据集处理
 FilePath: wasim_bert\bert_torch_lession245\ner_prep.py
 '''
 # !/usr/bin/env python
@@ -17,7 +17,7 @@ import sys
 # file_path = sys.argv[1]
 # save_name = sys.argv[2]
 
-file_path = 'F:/git_ml/wasim_bert/bert_torch_lession245/data/chnsenticorp/train.tsv'
+# file_path = 'F:/git_ml/wasim_bert/bert_torch_lession245/data/chnsenticorp/train.tsv'
 file_path = 'F:/git_ml/wasim_bert/bert_torch_lession245/data/nlp-public-dataset-master/ner-data/weibo/weiboNER_2nd_conll.dev'
 save_name = 'dev.tsv'
 
@@ -42,9 +42,9 @@ with codecs.open(file_path, "r", "utf-8") as f:
 
 with codecs.open(save_name, "w", "utf-8") as f:
     for ex in data:
-        s = "".join(ex[0])
-        l = " ".join(ex[1])
-        f.write(s + "\t" + l + "\n")
+        sentence_tmp = "".join(ex[0])
+        label_list_tmp = " ".join(ex[1])
+        f.write(sentence_tmp + "\t" + label_list_tmp + "\n")
 
 if save_name.find("train.tsv") > -1:
     with open("label.txt", "w") as f:
