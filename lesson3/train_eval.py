@@ -127,9 +127,12 @@ def evaluate(config, model, data_iter, test=False):
             labels_all = np.append(labels_all, labels)
             predict_all = np.append(predict_all, predic)
 
+    # 计算accuracy准确率
     acc = metrics.accuracy_score(labels_all, predict_all)
     if test:
+        # 显示主要分类指标的文本报告．在报告中显示每个类的精确度，召回率，F1值等信息
         report = metrics.classification_report(labels_all, predict_all, target_names=config.class_list, digits=4)
+        # 混淆矩阵可以非常容易的表明多个类别是否有混淆（也就是一个class被预测成另一个class） https://blog.csdn.net/u011734144/article/details/80277225
         confusion = metrics.confusion_matrix(labels_all, predict_all)
         return acc, loss_total / len(data_iter), report, confusion
     return acc, loss_total / len(data_iter)
