@@ -6,29 +6,22 @@
  * @Description: In User Settings Edit
  * @FilePath: \wasim_bert\lesson3\README.md
 -->
-## 代码结构
-代码分为 6 个部分：main.py，model.py，prepro.py，parser_args.py，src 文件夹以及 shell 脚本文件。
-
-- main.py：主函数入口文件，包括模型的训练和验证流程，模型加载、模型保存、模型输出，控制日志输出等。
-- model.py：模型定义模块，即定义模型计算图，负责定义模型从输入到输出（loss, logits）的处理流程。
-- prepro.py：数据处理模块，负责将文本序列的句子处理成模型需要的 tensor，包括不同任务的 processor 预处理函数。
-- parser_args.py：统一设置超参数的文件。
-- src ：transfomers 库的源代码文件，包括已经封装好的各种模型类，配置类，我们这一节课程不涉及这里的代码。
-- 脚本文件：train.sh，eval.sh。训练和测试的脚本文件，可一键运行。
-- ner_prep.py：NER 任务的数据预处理脚本。
+### 代码结构
+代码分为以下几个部分
+- run.py： 模型入口，供大家一键运行。
+- utils.py： 功能函数，主要包含数据准备与预处理。
+- train_eval.py： 训练、验证、测试主函数。
+- models/bert.py： BERT模型结构，包含对模型超参数的封装。
+- bert_pretrain： 预训练好的 BERT 权重，下载地址见文件中的 README。
 
 
-## 训练与评估
-
-训练：
+### 训练与测试
+- 训练和测试脚本(以分类为例，匹配和NER任务参考scripts中的脚本。)
 ```
-task_output_name是本次训练任务的输出路径
-sh train.sh <task_output_name>
+python train.sh
 ```
 
-
-评估：
+- 不训练，只测试
 ```
-task_output_name是本次训练任务的输出路径
-sh eval.sh <task_output_name>
+python eval.sh
 ```
