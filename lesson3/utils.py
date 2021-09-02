@@ -35,6 +35,12 @@ def build_dataset(config):
     train = load_dataset(config.train_path, config.pad_size)
     dev = load_dataset(config.dev_path, config.pad_size)
     test = load_dataset(config.test_path, config.pad_size)
+    
+    if config.debug:
+        # 因为batch_size是128，为了debug方便, 切片大小为整数倍
+        train = train[:1280]
+        dev = dev[:256]
+        test = test[:256]
     return train, dev, test
 
 

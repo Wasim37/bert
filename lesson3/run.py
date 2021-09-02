@@ -1,10 +1,9 @@
 '''
 Author: your name
 Date: 2021-08-28 10:27:02
-LastEditTime: 2021-08-31 16:22:56
+LastEditTime: 2021-09-02 10:15:19
 LastEditors: Please set LastEditors
 Description: In User Settings Edit
-FilePath: wasim_bert\lesson3\run.py
 '''
 # coding: UTF-8
 import time
@@ -36,7 +35,7 @@ if __name__ == '__main__':
 
     start_time = time.time()
     print("Loading data...")
-    # 数据预处理: 构建词典、训练集、验证集、测试集
+    # 构建词典、训练集、验证集、测试集
     train_data, dev_data, test_data = build_dataset(config)
     
     # 构建训练集、验证集、测试集的迭代器/生成器（节约内存、避免溢出）

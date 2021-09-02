@@ -1,10 +1,9 @@
 '''
 Author: your name
 Date: 2021-08-28 10:27:02
-LastEditTime: 2021-08-31 16:45:30
+LastEditTime: 2021-09-02 11:03:09
 LastEditors: Please set LastEditors
 Description: In User Settings Edit
-FilePath: \wasim_bert\lesson3\models\bert.py
 '''
 # coding: UTF-8
 import torch
@@ -24,8 +23,6 @@ class Config(object):
         self.train_path = dataset + '/data/train.txt'                                # 训练集
         self.dev_path = dataset + '/data/dev.txt'                                    # 验证集
         self.test_path = dataset + '/data/test.txt'                                  # 测试集
-        # self.class_list = [x.strip() for x in open(root_dir + 
-            # '/lesson3/' + dataset + '/data/class.txt').readlines()]                                # 类别名单
         self.class_list = [x.strip() for x in open(
             dataset + '/data/class.txt').readlines()]                                # 类别名单
         self.save_path = dataset + '/saved_dict/' + self.model_name + '.ckpt'        # 模型训练结果
@@ -40,6 +37,7 @@ class Config(object):
         self.bert_path = './bert_pretrain'
         self.tokenizer = BertTokenizer.from_pretrained(self.bert_path)
         self.hidden_size = 768
+        self.debug = True                                              # 是否Debug调试
 
 
 class Model(nn.Module):

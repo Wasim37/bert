@@ -30,6 +30,7 @@ def init_network(model, method='xavier', exclude='embedding', seed=123):
 
 def train(config, model, train_iter, dev_iter, test_iter):
     start_time = time.time()
+    # model.train()的作用是启用 Batch Normalization 和 Dropout
     model.train()
     param_optimizer = list(model.named_parameters())
     no_decay = ['bias', 'LayerNorm.bias', 'LayerNorm.weight']
@@ -38,7 +39,6 @@ def train(config, model, train_iter, dev_iter, test_iter):
         {'params': [p for n, p in param_optimizer if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}]
 
     # optimizer_grouped_parameters += [{'params': [p for n, p in param_optimizer if 'bert' not in n], 'lr': 1e-4}]
-
     # optimizer = torch.optim.Adam(model.parameters(), lr=config.learning_rate)
     optimizer = BertAdam(optimizer_grouped_parameters,
                          lr=config.learning_rate,
@@ -52,11 +52,11 @@ def train(config, model, train_iter, dev_iter, test_iter):
     for epoch in range(config.num_epochs):
         print('Epoch [{}/{}]'.format(epoch + 1, config.num_epochs))
         for i, (trains, labels) in enumerate(train_iter):
-            outputs = model(trains)
-            model.zero_grad()
-            loss = F.cross_entropy(outputs, labels)
-            loss.backward()
-            optimizer.step()
+            outputs = model(trains)  # 前向传播
+            model.zero_grad()  # 梯度归零
+            loss = F.cross_entropy(outputs, labels)  # 计算损失
+            loss.backward()  # 反向传播计算得到每个参数的梯度
+            optimizer.step()  # 通过梯度下降执行一步参数更新
             if total_batch % 100 == 0:
                 # 每多少轮输出在训练集和验证集上的效果
                 true = labels.data.cpu()
@@ -80,6 +80,11 @@ def train(config, model, train_iter, dev_iter, test_iter):
                 print("No optimization for a long time, auto-stopping...")
                 flag = True
                 break
+            
+            # debug时, 提前终止
+            if config.debug:
+                flag = True
+                break
         if flag:
             break
     test(config, model, test_iter)
@@ -88,6 +93,7 @@ def train(config, model, train_iter, dev_iter, test_iter):
 def test(config, model, test_iter):
     # test
     model.load_state_dict(torch.load(config.save_path))
+    # model.eval()的作用是不启用 Batch Normalization 和 Dropout
     model.eval()
     start_time = time.time()
     test_acc, test_loss, test_report, test_confusion = evaluate(config, model, test_iter, test=True)
@@ -106,6 +112,8 @@ def evaluate(config, model, data_iter, test=False):
     loss_total = 0
     predict_all = np.array([], dtype=int)
     labels_all = np.array([], dtype=int)
+    
+    # no_grad作用：将该with语句包裹起来的部分停止autograd模块的工作（停止梯度的更新），以起到加速和节省显存的作用，但是并不会影响dropout和BN层的行为
     with torch.no_grad():
         for texts, labels in data_iter:
             outputs = model(texts)
