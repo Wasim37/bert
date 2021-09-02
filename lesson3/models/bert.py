@@ -1,7 +1,7 @@
 '''
 Author: your name
 Date: 2021-08-28 10:27:02
-LastEditTime: 2021-09-02 14:53:02
+LastEditTime: 2021-09-02 17:32:36
 LastEditors: Please set LastEditors
 Description: In User Settings Edit
 '''
@@ -11,8 +11,6 @@ import torch.nn as nn
 # from pytorch_pretrained_bert import BertModel, BertTokenizer
 from pytorch_pretrained import BertModel, BertTokenizer
 import os
-
-root_dir = os.path.abspath('.')
 
 
 class Config(object):
@@ -57,6 +55,7 @@ class Model(nn.Module):
     def forward(self, x):
         context = x[0]  # 输入的句子
         mask = x[2]  # 对padding部分进行mask，和句子一个size，padding部分用0表示，如：[1, 1, 1, 1, 0, 0]
+        # 参数说明：（1）https://blog.csdn.net/Ascn_/article/details/106194326（2）https://zxbcw.cn/post/208412/
         _, pooled = self.bert(context, attention_mask=mask, output_all_encoded_layers=False)
         out = self.fc(pooled)
         return out
