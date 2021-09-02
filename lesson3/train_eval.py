@@ -30,20 +30,23 @@ def init_network(model, method='xavier', exclude='embedding', seed=123):
 
 def train(config, model, train_iter, dev_iter, test_iter):
     start_time = time.time()
+    
     # model.train()的作用是启用 Batch Normalization 和 Dropout
     model.train()
     param_optimizer = list(model.named_parameters())
     no_decay = ['bias', 'LayerNorm.bias', 'LayerNorm.weight']
+    # 将模型中除了 LN 层和 bias 的参数都设置权重衰减率为 0.01，之后将所有参数送入优化器中：
     optimizer_grouped_parameters = [
         {'params': [p for n, p in param_optimizer if not any(nd in n for nd in no_decay)], 'weight_decay': 0.01},
         {'params': [p for n, p in param_optimizer if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}]
-
     # optimizer_grouped_parameters += [{'params': [p for n, p in param_optimizer if 'bert' not in n], 'lr': 1e-4}]
     # optimizer = torch.optim.Adam(model.parameters(), lr=config.learning_rate)
     optimizer = BertAdam(optimizer_grouped_parameters,
                          lr=config.learning_rate,
-                         warmup=0.05,
-                         t_total=len(train_iter) * config.num_epochs)
+                         warmup=0.05,  # 启动大小. warmup是一种要求模型先使用一个较小的学习率去更新模型的参数，然后随着训练过程的深入，逐渐增大至指定的训练参数的一种方法，这样做会使模型的最终收敛效果更好。
+                         t_total=len(train_iter) * config.num_epochs  # warmup作用的轮次，这里设置了全阶段启用（因为我们的 epoch 很小）
+                         )
+    
     total_batch = 0  # 记录进行到多少batch
     dev_best_loss = float('inf')
     last_improve = 0  # 记录上次验证集loss下降的batch数
@@ -75,8 +78,9 @@ def train(config, model, train_iter, dev_iter, test_iter):
                 print(msg.format(total_batch, loss.item(), train_acc, dev_loss, dev_acc, time_dif, improve))
                 model.train()
             total_batch += 1
+            
+            # 验证集loss超过1000batch没下降，提前终止训练节省计算开销
             if total_batch - last_improve > config.require_improvement:
-                # 验证集loss超过1000batch没下降，结束训练
                 print("No optimization for a long time, auto-stopping...")
                 flag = True
                 break
@@ -91,7 +95,6 @@ def train(config, model, train_iter, dev_iter, test_iter):
 
 
 def test(config, model, test_iter):
-    # test
     model.load_state_dict(torch.load(config.save_path))
     # model.eval()的作用是不启用 Batch Normalization 和 Dropout
     model.eval()

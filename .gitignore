@@ -1,2 +1,6 @@
 .DS_Store
 *.pyc
+*.tsv
+**/*.txt
+**/*.json
+bert_torch_lession245/data/
