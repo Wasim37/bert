@@ -56,8 +56,11 @@ def train(config, model, train_iter, dev_iter, test_iter):
         print('Epoch [{}/{}]'.format(epoch + 1, config.num_epochs))
         for i, (trains, labels) in enumerate(train_iter):
             outputs = model(trains)  # 前向传播
-            model.zero_grad()  # 梯度归零
             loss = F.cross_entropy(outputs, labels)  # 计算损失
+            
+            # https://www.zhihu.com/question/303070254 
+            # 1、为什么要在反向传播前梯度清零? 2、如果是梯度累加怎么处理?
+            model.zero_grad()  # 梯度归零
             loss.backward()  # 反向传播计算得到每个参数的梯度
             optimizer.step()  # 通过梯度下降执行一步参数更新
             if total_batch % 100 == 0:
